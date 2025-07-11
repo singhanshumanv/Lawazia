@@ -1,0 +1,334 @@
+{
+  "name": "WorkFlow Lang",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1140,
+        140
+      ],
+      "id": "a171c67a-9b83-4ea6-b6c3-4e67df62494f",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ljXhSvNeO8EtYSlE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.originalFilename }}",
+        "options": {
+          "systemMessage": "return only Yes if the file is html file else only No, uploaded in google Drive "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1160,
+        -80
+      ],
+      "id": "3d85916c-7c28-40a8-b574-33581de75d06",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        -1020,
+        140
+      ],
+      "id": "dfd345ab-83ee-47a2-bd80-3ccea2ad6275",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "tYgE6TtNaw6xTLx0",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "n8ntestbucket9090",
+        "fileName": "={{ $('Google Drive Trigger').item.json.originalFilename }}",
+        "binaryData": false,
+        "fileContent": "={{ $('Google Drive Trigger').item.json.fullFileExtension }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        -580,
+        -180
+      ],
+      "id": "1536e9f6-ce20-4a6d-958d-f1dea6bad62c",
+      "name": "Upload a file",
+      "credentials": {
+        "aws": {
+          "id": "PeKbABR5Po1XUKhP",
+          "name": "AWS account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "aks12399662@gmail.com",
+        "subject": "Inavid File Format ",
+        "emailType": "text",
+        "message": "Upload valid HTML File!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -520,
+        40
+      ],
+      "id": "9ab8baf3-ddfb-4d3a-aee1-652234afaefd",
+      "name": "Send a message",
+      "webhookId": "8fd582db-ecb5-474f-8a29-017f23f50be3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bak1AsoAfE4ihmxO",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "aks12399662@gmail.com",
+        "subject": "Uploaded",
+        "emailType": "text",
+        "message": "File validated and uploaded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -360,
+        -180
+      ],
+      "id": "06ba6c17-88d6-4b79-8eaa-fa1a9109b149",
+      "name": "Send a message1",
+      "webhookId": "3078fb51-e2ae-4f78-81bb-46029d3dee7b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "bak1AsoAfE4ihmxO",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e9cbe2ed-3528-4c73-b202-9e01a87ef301",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -800,
+        -80
+      ],
+      "id": "55194883-dcb0-47ae-b3b7-0623a023b259",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1DYPrSk-SUZvDSAl5MOV-bPrBatcUgNeS",
+          "mode": "list",
+          "cachedResultName": "Testing",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1DYPrSk-SUZvDSAl5MOV-bPrBatcUgNeS"
+        },
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1380,
+        -80
+      ],
+      "id": "278e59c6-3056-46e1-a168-015c2b7f61cb",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JKyFJwHYr7xDDoIy",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Google Drive Trigger').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -240,
+        40
+      ],
+      "id": "ceb6325d-6796-4499-a832-aa43511a4524",
+      "name": "Delete a file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JKyFJwHYr7xDDoIy",
+          "name": "Google Drive account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "72a92d7d-a210-498a-8ec6-28d656d040e8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37e0d1ea74b5c5244a41718226711424ce1cc936a5e88e369b14180f6aab7024"
+  },
+  "id": "luTl7Otsf5ClKqet",
+  "tags": []
+}
